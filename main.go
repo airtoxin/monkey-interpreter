@@ -2,22 +2,19 @@ package main
 
 import (
 	"fmt"
+	"monkey-interpreter/pkg/repl"
 	"os"
-
-	"github.com/hackebrot/turtle"
+	"os/user"
 )
 
 func main() {
-	name := "wolf"
-	emoji, ok := turtle.Emojis[name]
-
-	if !ok {
-		fmt.Fprintf(os.Stderr, "no emoji found for name: %v\n", name)
-		os.Exit(1)
+	user, err := user.Current()
+	if err != nil {
+		panic(err)
 	}
 
-	fmt.Printf("Name: %q\n", emoji.Name)
-	fmt.Printf("Char: %s\n", emoji.Char)
-	fmt.Printf("Category: %q\n", emoji.Category)
-	fmt.Printf("Keywords: %q\n", emoji.Keywords)
+	fmt.Printf("Hello %s! This is the Monkey programming language!\n", user.Username)
+	fmt.Printf("Feel free to type in command\n")
+
+	repl.Start(os.Stdin, os.Stdout)
 }
