@@ -45,41 +45,47 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.ch {
 	case '=':
-		tok = newToken(token.ASSIGN, l.ch, l.position)
-	case ';':
-		tok = newToken(token.SEMICOLON, l.ch, l.position)
-	case '(':
-		tok = newToken(token.LPAREN, l.ch, l.position)
-	case ')':
-		tok = newToken(token.RPAREN, l.ch, l.position)
-	case ',':
-		tok = newToken(token.COMMA, l.ch, l.position)
+		tok = newToken(token.ASSIGN, l.ch)
 	case '+':
-		tok = newToken(token.PLUS, l.ch, l.position)
+		tok = newToken(token.PLUS, l.ch)
+	case '-':
+		tok = newToken(token.MINUS, l.ch)
+	case '!':
+		tok = newToken(token.BANG, l.ch)
+	case '*':
+		tok = newToken(token.ASTERISK, l.ch)
+	case '/':
+		tok = newToken(token.SLASH, l.ch)
+	case '<':
+		tok = newToken(token.LT, l.ch)
+	case '>':
+		tok = newToken(token.GT, l.ch)
+	case ',':
+		tok = newToken(token.COMMA, l.ch)
+	case ';':
+		tok = newToken(token.SEMICOLON, l.ch)
+	case '(':
+		tok = newToken(token.LPAREN, l.ch)
+	case ')':
+		tok = newToken(token.RPAREN, l.ch)
 	case '{':
-		tok = newToken(token.LBRACE, l.ch, l.position)
+		tok = newToken(token.LBRACE, l.ch)
 	case '}':
-		tok = newToken(token.RBRACE, l.ch, l.position)
+		tok = newToken(token.RBRACE, l.ch)
 	case 0:
-		tok = token.Token{
-			Type:    token.EOF,
-			Literal: "",
-			Line:    0,
-			Column:  l.position,
-		}
+		tok.Literal = ""
+		tok.Type = token.EOF
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdent(tok.Literal)
-			tok.Column = l.position
 			return tok
 		} else if isDigit(l.ch) {
 			tok.Type = token.INT
 			tok.Literal = l.readNumber()
-			tok.Column = l.position
 			return tok
 		} else {
-			tok = newToken(token.ILLEGAL, l.ch, l.position)
+			tok = newToken(token.ILLEGAL, l.ch)
 		}
 	}
 
@@ -95,12 +101,10 @@ func (l *Lexer) readNumber() string {
 	return l.input[fromPosition:l.position]
 }
 
-func newToken(tokenType token.TokenType, ch byte, column int) token.Token {
+func newToken(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{
 		Type:    tokenType,
 		Literal: string(ch),
-		Line:    0,
-		Column:  column,
 	}
 }
 

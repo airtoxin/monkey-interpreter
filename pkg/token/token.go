@@ -5,8 +5,6 @@ type TokenType string
 type Token struct {
 	Type TokenType
 	Literal string
-	Line int
-	Column int
 }
 
 const (
@@ -21,6 +19,12 @@ const (
 	// Operators
 	ASSIGN = "="
 	PLUS = "+"
+	MINUS = "-"
+	BANG = "!"
+	ASTERISK = "*"
+	SLASH = "/"
+	LT = "<"
+	GT = ">"
 
 	// Delimiters
 	COMMA = ","
@@ -35,6 +39,7 @@ const (
 	// Keywords
 	FUNCTION = "FUNCTION"
 	LET = "LET"
+
 )
 
 var keywords = map[string]TokenType{
