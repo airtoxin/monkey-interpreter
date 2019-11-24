@@ -7,7 +7,7 @@ import (
 )
 
 func TestLetStatements(t *testing.T) {
-	input :=`
+	input := `
 let x = 5;
 let y = 10;
 let foobar = 838383;
@@ -25,9 +25,9 @@ let foobar = 838383;
 		t.Fatalf("program.Statements does not contain 3 statements. got=%d", len(program.Statements))
 	}
 
-	tests := []struct{
+	tests := []struct {
 		expectedIdentifier string
-	} {
+	}{
 		{"x"},
 		{"y"},
 		{"foobar"},
