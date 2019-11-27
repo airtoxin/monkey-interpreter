@@ -13,8 +13,6 @@ func Eval(node ast.Node) object.Object {
 		return evalBlockStatement(node)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
-	case *ast.ReturnStatement:
-		return &object.ReturnValue{Value: Eval(node.ReturnValue)}
 	case *ast.PrefixExpression:
 		return evalPrefixExpression(node)
 	case *ast.InfixExpression:
@@ -25,9 +23,19 @@ func Eval(node ast.Node) object.Object {
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value)
+	case *ast.ReturnStatement:
+		return evalReturnStatement(node)
 	}
 
 	return nil
+}
+
+func evalReturnStatement(node *ast.ReturnStatement) object.Object {
+	val := Eval(node.ReturnValue)
+	if isError(val) {
+		return val
+	}
+	return &object.ReturnValue{Value: val}
 }
 
 func evalProgram(node *ast.Program) object.Object {
@@ -36,8 +44,11 @@ func evalProgram(node *ast.Program) object.Object {
 	for _, statement := range node.Statements {
 		result = Eval(statement)
 
-		if returnValue, ok := result.(*object.ReturnValue); ok {
-			return returnValue.Value
+		switch result := result.(type) {
+		case *object.ReturnValue:
+			return result.Value
+		case *object.Error:
+			return result
 		}
 	}
 
@@ -46,6 +57,9 @@ func evalProgram(node *ast.Program) object.Object {
 
 func evalIfExpression(node *ast.IfExpression) object.Object {
 	condition := Eval(node.Condition)
+	if isError(condition) {
+		return condition
+	}
 
 	if isTruthy(condition) {
 		return Eval(node.Consequence)
@@ -58,15 +72,23 @@ func evalIfExpression(node *ast.IfExpression) object.Object {
 
 func evalInfixExpression(node *ast.InfixExpression) object.Object {
 	left := Eval(node.Left)
+	if isError(left) {
+		return left
+	}
 	right := Eval(node.Right)
+	if isError(right) {
+		return right
+	}
 
 	switch {
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(left, node.Operator, right)
 	case left.Type() == object.BOOLEAN_OBJ && right.Type() == object.BOOLEAN_OBJ:
 		return evalBooleanInfixExpression(left, node.Operator, right)
+	case left.Type() != right.Type():
+		return newError("type mismatch: %s %s %s", left.Type(), node.Operator, right.Type())
 	default:
-		return object.NULL
+		return newError("unknown operator: %s %s %s", left.Type(), node.Operator, right.Type())
 	}
 }
 
@@ -92,7 +114,7 @@ func evalIntegerInfixExpression(left object.Object, operator string, right objec
 	case "!=":
 		return nativeBoolToBooleanObject(leftVal != rightVal)
 	default:
-		return object.NULL
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
@@ -106,12 +128,15 @@ func evalBooleanInfixExpression(left object.Object, operator string, right objec
 	case "!=":
 		return nativeBoolToBooleanObject(leftVal != rightVal)
 	default:
-		return object.NULL
+		return newError("unknown operator: BOOLEAN %s BOOLEAN", operator)
 	}
 }
 
 func evalPrefixExpression(node *ast.PrefixExpression) object.Object {
 	right := Eval(node.Right)
+	if isError(right) {
+		return right
+	}
 
 	switch node.Operator {
 	case "!":
@@ -119,7 +144,7 @@ func evalPrefixExpression(node *ast.PrefixExpression) object.Object {
 	case "-":
 		return evalMinusPrefixOperatorExpression(right)
 	default:
-		return object.NULL
+		return newError("unknown operator: %s%s", node.Operator, right.Type())
 	}
 }
 
@@ -140,7 +165,7 @@ func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 	value, ok := right.(*object.Integer)
 
 	if !ok {
-		return object.NULL
+		return newError("unknown operator: -%s", right.Type())
 	}
 
 	return &object.Integer{Value: -value.Value}
@@ -152,8 +177,12 @@ func evalBlockStatement(node *ast.BlockStatement) object.Object {
 	for _, stmt := range node.Statements {
 		result = Eval(stmt)
 
-		if result != nil && result.Type() == object.RETURN_VALUE_OBJ {
-			return result
+		if result != nil {
+			rt := result.Type()
+
+			if rt == object.RETURN_VALUE_OBJ || rt == object.ERROR_OBJ {
+				return result
+			}
 		}
 	}
 
@@ -178,4 +207,11 @@ func isTruthy(obj object.Object) bool {
 	default:
 		return true
 	}
+}
+
+func isError(obj object.Object) bool {
+	if obj != nil {
+		return obj.Type() == object.ERROR_OBJ
+	}
+	return false
 }
