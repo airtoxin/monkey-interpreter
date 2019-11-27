@@ -1,6 +1,6 @@
 package object
 
-type Null struct {}
+type Null struct{}
 
 func (n *Null) Type() ObjectType {
 	return NULL_OBJ
@@ -9,4 +9,3 @@ func (n *Null) Type() ObjectType {
 func (n *Null) Inspect() string {
 	return "null"
 }
-
