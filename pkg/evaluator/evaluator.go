@@ -8,11 +8,13 @@ import (
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalStatements(node.Statements)
+		return evalProgram(node)
 	case *ast.BlockStatement:
-		return evalStatements(node.Statements)
+		return evalBlockStatement(node)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
+	case *ast.ReturnStatement:
+		return &object.ReturnValue{Value: Eval(node.ReturnValue)}
 	case *ast.PrefixExpression:
 		return evalPrefixExpression(node)
 	case *ast.InfixExpression:
@@ -26,6 +28,20 @@ func Eval(node ast.Node) object.Object {
 	}
 
 	return nil
+}
+
+func evalProgram(node *ast.Program) object.Object {
+	var result object.Object
+
+	for _, statement := range node.Statements {
+		result = Eval(statement)
+
+		if returnValue, ok := result.(*object.ReturnValue); ok {
+			return returnValue.Value
+		}
+	}
+
+	return result
 }
 
 func evalIfExpression(node *ast.IfExpression) object.Object {
@@ -130,11 +146,15 @@ func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 	return &object.Integer{Value: -value.Value}
 }
 
-func evalStatements(stmts []ast.Statement) object.Object {
+func evalBlockStatement(node *ast.BlockStatement) object.Object {
 	var result object.Object
 
-	for _, stmt := range stmts {
+	for _, stmt := range node.Statements {
 		result = Eval(stmt)
+
+		if result != nil && result.Type() == object.RETURN_VALUE_OBJ {
+			return result
+		}
 	}
 
 	return result
