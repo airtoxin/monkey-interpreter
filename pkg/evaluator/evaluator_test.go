@@ -253,6 +253,43 @@ addTwo(2);
 	testIntegerObject(t, testEval(input), 4)
 }
 
+func TestString(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`"foobar"`, "foobar"},
+		{`"foo bar"`, "foo bar"},
+	}
+
+	for _, tt := range tests {
+		result, ok := testEval(tt.input).(*object.String)
+
+		if !ok {
+			t.Errorf("object is not String. got=%T (%+v)", result, result)
+		}
+
+		if result.Value != tt.expected {
+			t.Errorf("object has wrong Value. got=%q, want=%q", result.Value, tt.expected)
+		}
+	}
+}
+
+func TestStringConcatenation(t *testing.T) {
+	input := `"Hello" + " " + "World!"`
+
+	evaluated := testEval(input)
+	str, ok := evaluated.(*object.String)
+
+	if !ok {
+		t.Errorf("object is not String. got=%T (%+v)", str, str)
+	}
+
+	if str.Value != "Hello World!" {
+		t.Errorf("object has wrong Value. got=%q", str.Value)
+	}
+}
+
 func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
