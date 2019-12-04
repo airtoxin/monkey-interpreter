@@ -10,6 +10,7 @@ const (
 	ERROR_OBJ        = "ERROR"
 	FUNCTION_OBJ     = "FUNCTION_OBJ"
 	STRING_OBJ       = "STRING_OBJ"
+	ARRAY_OBJ        = "ARRAY"
 	BUILTIN_OBJ      = "BUILTIN_OBJ"
 )
 
