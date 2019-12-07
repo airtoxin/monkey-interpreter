@@ -1,6 +1,9 @@
 package evaluator
 
-import "monkey-interpreter/pkg/object"
+import (
+	"fmt"
+	"monkey-interpreter/pkg/object"
+)
 
 func getBuiltins() map[string]*object.Builtin {
 	return map[string]*object.Builtin{
@@ -106,6 +109,14 @@ func getBuiltins() map[string]*object.Builtin {
 					newElements[i] = applyFunction(fn, []object.Object{element})
 				}
 				return &object.Array{Elements: newElements}
+			},
+		},
+		"puts": &object.Builtin{
+			Fn: func(args ...object.Object) object.Object {
+				for _, arg := range args {
+					fmt.Println(arg.Inspect())
+				}
+				return object.NULL
 			},
 		},
 	}
