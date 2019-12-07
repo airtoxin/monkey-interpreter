@@ -8,10 +8,11 @@ const (
 	BOOLEAN_OBJ      = "BOOLEAN"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	ERROR_OBJ        = "ERROR"
-	FUNCTION_OBJ     = "FUNCTION_OBJ"
-	STRING_OBJ       = "STRING_OBJ"
+	FUNCTION_OBJ     = "FUNCTION"
+	STRING_OBJ       = "STRING"
 	ARRAY_OBJ        = "ARRAY"
-	BUILTIN_OBJ      = "BUILTIN_OBJ"
+	HASH_OBJ         = "HASH"
+	BUILTIN_OBJ      = "BUILTIN"
 )
 
 type Object interface {

@@ -4,10 +4,10 @@ type String struct {
 	Value string
 }
 
-func (i *String) Inspect() string {
-	return i.Value
+func (s *String) Inspect() string {
+	return s.Value
 }
 
-func (i *String) Type() ObjectType {
+func (s *String) Type() ObjectType {
 	return STRING_OBJ
 }
