@@ -33,6 +33,8 @@ if (5 < 10) {
 
 {"foo": "bar baz"};
 {100: 1};
+
+macro(x, y) { x + y };
 `
 	tests := []struct {
 		expectedType    token.TokenType
@@ -150,6 +152,20 @@ if (5 < 10) {
 		{token.INT, "100"},
 		{token.COLON, ":"},
 		{token.INT, "1"},
+		{token.RBRACE, "}"},
+		{token.SEMICOLON, ";"},
+
+		// macro(x, y) { x + y };
+		{token.MACRO, "macro"},
+		{token.LPAREN, "("},
+		{token.IDENT, "x"},
+		{token.COMMA, ","},
+		{token.IDENT, "y"},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.IDENT, "x"},
+		{token.PLUS, "+"},
+		{token.IDENT, "y"},
 		{token.RBRACE, "}"},
 		{token.SEMICOLON, ";"},
 

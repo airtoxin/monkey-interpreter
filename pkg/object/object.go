@@ -13,6 +13,7 @@ const (
 	ARRAY_OBJ        = "ARRAY"
 	HASH_OBJ         = "HASH"
 	BUILTIN_OBJ      = "BUILTIN"
+	MACRO_OBJ        = "MACRO"
 	QUOTE_OBJ        = "QUOTE"
 )
 
